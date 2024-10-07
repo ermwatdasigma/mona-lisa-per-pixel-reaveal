@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mona Lisa Pixel by Pixel (Ultra Fast)</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #000;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="monaLisaCanvas"></canvas>
+        <br>
+        <button id="revealButton">Reveal Next Pixel</button>
+        <button id="autoRevealButton">Auto Reveal</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('monaLisaCanvas');
+        const ctx = canvas.getContext('2d');
+        const revealButton = document.getElementById('revealButton');
+        const autoRevealButton = document.getElementById('autoRevealButton');
+
+        const img = new Image();
+        img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/600px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg';
+
+        let pixelsRevealed = new Set();
+        let autoRevealInterval;
+
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        };
+
+        function revealPixel() {
+            if (pixelsRevealed.size >= img.width * img.height) {
+                alert('All pixels revealed!');
+                if (autoRevealInterval) {
+                    clearInterval(autoRevealInterval);
+                    autoRevealInterval = null;
+                    autoRevealButton.textContent = 'Auto Reveal';
+                }
+                return;
+            }
+
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * img.width);
+                y = Math.floor(Math.random() * img.height);
+            } while (pixelsRevealed.has(`${x},${y}`));
+
+            pixelsRevealed.add(`${x},${y}`);
+
+            ctx.drawImage(img, x, y, 1, 1, x, y, 1, 1);
+        }
+
+        function revealMultiplePixels() {
+            for (let i = 0; i < 50; i++) {
+                revealPixel();
+            }
+        }
+
+        revealButton.addEventListener('click', revealPixel);
+
+        autoRevealButton.addEventListener('click', function() {
+            if (autoRevealInterval) {
+                clearInterval(autoRevealInterval);
+                autoRevealInterval = null;
+                this.textContent = 'Auto Reveal';
+            } else {
+                autoRevealInterval = setInterval(revealMultiplePixels, 2);
+                this.textContent = 'Stop Auto Reveal';
+            }
+        });
+    </script>
+</body>
+</html>
